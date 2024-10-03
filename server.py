@@ -1,5 +1,3 @@
-# server.py
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import numpy as np
@@ -8,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
-import os.path
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -16,8 +14,8 @@ CORS(app)
 def load_model():
     raw_mail_data = pd.read_csv('./mail_data.csv')
     mail_data = raw_mail_data.where((pd.notnull(raw_mail_data)), '')
-    mail_data.loc[mail_data['Category'] == 'spam', 'Category',] = 0
-    mail_data.loc[mail_data['Category'] == 'ham', 'Category',] = 1
+    mail_data.loc[mail_data['Category'] == 'spam', 'Category'] = 0
+    mail_data.loc[mail_data['Category'] == 'ham', 'Category'] = 1
     X = mail_data['Message']
     Y = mail_data['Category']
     X_train, _, Y_train, _ = train_test_split(X, Y, test_size=0.2, random_state=3)
@@ -45,4 +43,5 @@ def classify():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))  # Get the port from the environment variable
+    app.run(host='0.0.0.0', port=port, debug=False)  # Listen on all interfaces
